@@ -143,13 +143,13 @@ def getVal(coordinates: list[float]) -> float:
 
 def function(x: float, y:float) -> float:
      #return x**2 + 4*x*y + y**2 - y - x*y
-     #return (x - 2)**2 + (y + 1)**2
+     return (x - 2)**2 + (y + 1)**2 +3
      #return x**2 + y**2 + x*y**3
 
      #return 3*(x-2)**2 + 0.5*(y+1)**2
      #return 100 * (y - x**2)**2 + (1 - x)**2
      #return math.exp(x) - 2 * x 
-     return (x+2)**2 + (y-1)**2 + (x*y)/2
+     #return (x+2)**2 + (y-1)**2 + (x*y)/2
 
 
 def getReflection(

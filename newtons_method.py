@@ -3,9 +3,18 @@ import numpy as np
 import sympy as sp
 import random
 
+
+# ================================================
+# Pre 2D treba upravit premennu "f", pretoze inak
+# to nebude fungovat s derivaciami z SymPy !
+# ================================================
+
+
 def function(x: float, y: float) -> float:
     #return math.exp(x) - 2 * x 
-    return (x+2)**2 + (y-1)**2 + (x*y)/2
+    #return (x+2)**2 + (y-1)**2 + (x*y)/2
+
+    return x**2 + 4*x*y + y**2 - y - x*y
 
 
 def newtonMethond1D(
@@ -13,8 +22,7 @@ def newtonMethond1D(
         x_k: float,
         max_iter: int
     ) -> None:
-
-    #? Nechapme velmi tomuto    
+  
     x = sp.symbols('x')
     f = sp.exp(x) - 2*x
 
@@ -57,7 +65,8 @@ def newtonMethond2D(
 
     # Gradient
     x, y = sp.symbols("x, y")
-    f = (x+2)**2 + (y-1)**2 + (x*y)/2
+    #f = (x+2)**2 + (y-1)**2 + (x*y)/2
+    f = x**2 + 4*x*y + y**2 - y - x*y
 
     grad = sp.Matrix([
         sp.diff(f, x),
@@ -104,8 +113,8 @@ def newtonMethond2D(
         x: x_k[0],
         y: x_k[1]
     })
-    #print(f"minimum: [{x_k}]")
-    print(f"hod.: {x_k[0]:.3f}, {x_k[1]:.3f}, {val:.3f}")
+    
+    print(f"minimum: [{x_k[0]:.3f}, {x_k[1]:.3f}, {val:.3f}]")
     
 
 if __name__ == "__main__":

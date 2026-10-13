@@ -1,0 +1,243 @@
+import random
+import math
+
+
+def nelderMead(
+          points: list[list[float]],
+          tolerance: float,
+          alpha: float,
+          gamma: float,
+          rho: float,
+          sigma: float,
+          max_iter: int
+          ) -> None:
+     # Sort by value from function
+     evaluated_points: list[tuple[float, list[float]]] = [
+          (getVal(coordinates=point), point)
+          for point in points
+     ]
+     evaluated_points.sort(
+          key=lambda item: item[0]
+     )
+     i: int = 0
+
+     while True:
+          evaluated_points.sort(
+               key=lambda item: item[0]
+          )
+
+          print(f"iteration: {i}")
+          print(evaluated_points[2][0] - evaluated_points[0][0])
+          print(evaluated_points[0][1])
+         
+          
+          i += 1
+
+          if (evaluated_points[2][0] - evaluated_points[0][0]) < tolerance: break
+          if i == max_iter: break
+          
+          # Get center point between good and bad points
+          center: tuple[float, list[float]] = getCenter(
+               good_coor=evaluated_points[0][1],
+               bad_coor=evaluated_points[1][1]
+          )
+
+          # Get reflex point
+          reflection: tuple[float, list[float]] = getReflection(
+               center_coor=center[1],
+               worst_coor=evaluated_points[2][1],
+               alpha=alpha
+          )
+
+          good_val: float = evaluated_points[0][0]
+          bad_val: float = evaluated_points[1][0]
+
+          # Compare good, bad and reflection
+          if good_val <= reflection[0] < bad_val:
+               evaluated_points[2] = reflection
+               print("reflection 1")
+               print("---------------------")
+               continue
+
+          # Check if reflection is the best val
+          if reflection[0] < good_val:
+               # Get expansion point
+               expansion: tuple[float, list[float]] = getExpansion(
+                    reflect_coor=reflection[1],
+                    center_coor=center[1],
+                    gamma=gamma
+               )
+               if reflection[0] < expansion[0]:
+                    evaluated_points[2] = reflection
+                    print("reflection 2")
+                    print("---------------------")
+                    continue
+               else:
+                    evaluated_points[2] = expansion
+                    print("expansion")
+                    print("---------------------")
+                    continue
+
+          worst_val: float = evaluated_points[2][0]
+          
+          # Check kontraction
+          if bad_val <= reflection[0]:
+               contraction: tuple[float, list[float]] = getContraction(
+                    center_coor=center[1],
+                    worst_coor=evaluated_points[2][1],
+                    rho=rho
+               )
+               if contraction[0] < worst_val:
+                    evaluated_points[2] = contraction
+                    print("contraction")
+                    print("---------------------")
+                    continue
+               else:
+                    new_bad: tuple[float, list[float]] = getShrinking(
+                         good_coor=evaluated_points[0][1],
+                         point_coor=evaluated_points[1][1],
+                         sigma=sigma
+                    )
+                    new_worst: tuple[float, list[float]] = getShrinking(
+                         good_coor=evaluated_points[0][1],
+                         point_coor=evaluated_points[2][1],
+                         sigma=sigma
+                    )
+                    evaluated_points[1] = new_bad
+                    evaluated_points[2] = new_worst
+                    print("Shrinking")
+                    print("---------------------")
+                    continue
+          print("usel som!!!!!!!!")
+          print("---------------------")
+
+     x_pos: float = evaluated_points[0][1][0]
+     y_pos: float = evaluated_points[0][1][1]
+     val: float = getVal(
+          coordinates=[x_pos, y_pos]
+     )     
+     print(f"minimum: [{x_pos:.3f},{y_pos:.3f},{val:.3f}]")
+
+
+def getCenter(
+          good_coor: list[float],
+          bad_coor: list[float]
+     ) -> tuple[float, list[float]]:
+
+     x_coor: float = (good_coor[0] + bad_coor[0]) / 2
+     y_coor: float = (good_coor[1] + bad_coor[1]) / 2
+
+     coordination: list[float] = [x_coor, y_coor]
+     val: float = getVal(coordinates=coordination)
+
+     return (val, coordination)
+
+
+def getVal(coordinates: list[float]) -> float:
+     val = function(
+          x=coordinates[0],
+          y=coordinates[1]
+     )
+     return val
+
+
+def function(x: float, y:float) -> float:
+     #return x**2 + 4*x*y + y**2 - y - x*y
+     #return (x - 2)**2 + (y + 1)**2
+     #return x**2 + y**2 + x*y**3
+
+     #return 3*(x-2)**2 + 0.5*(y+1)**2
+     #return 100 * (y - x**2)**2 + (1 - x)**2
+     #return math.exp(x) - 2 * x 
+     return (x+2)**2 + (y-1)**2 + (x*y)/2
+
+
+def getReflection(
+          center_coor: list[float],
+          worst_coor: list[float],
+          alpha: float
+     ) -> tuple[float, list[float]]:
+    
+    x_coor: float = center_coor[0] + (alpha * (center_coor[0] - worst_coor[0]))
+    y_coor: float = center_coor[1] + (alpha * (center_coor[1] - worst_coor[1]))
+
+    coordination: list[float] = [x_coor, y_coor]
+    val: float = getVal(coordinates=coordination)
+
+    return (val, coordination)
+
+
+def getContraction(
+          center_coor: list[float],
+          worst_coor: list[float],
+          rho: float
+     ) -> tuple[float, list[float]]:
+
+     x_coor: float = center_coor[0] + (rho * (worst_coor[0] - center_coor[0]))
+     y_coor: float = center_coor[1] + (rho * (worst_coor[1] - center_coor[1]))
+
+     coordination: list[float] = [x_coor, y_coor]
+     val: float = getVal(coordinates=coordination)
+
+     return (val, coordination)
+
+
+def getExpansion(
+          reflect_coor: list[float],
+          center_coor: list[float],
+          gamma: float
+          ) -> tuple[float, list[float]]:
+
+     x_coor: float = (center_coor[0] + gamma * (reflect_coor[0] - center_coor[0]))
+     y_coor: float = (center_coor[1] + gamma * (reflect_coor[1] - center_coor[1]))
+
+     coordination: list[float] = [x_coor, y_coor]
+     val: float = getVal(coordinates=coordination)
+
+     return (val, coordination)
+
+
+def getShrinking(
+          good_coor: list[float],
+          point_coor: list[float],
+          sigma: float
+     ) -> tuple[float, list[float]]:
+
+     x_coor: float = good_coor[0] + (sigma * (point_coor[0] - good_coor[0]))
+     y_coor: float = good_coor[1] + (sigma * (point_coor[1] - good_coor[1]))
+
+     coordination: list[float] = [x_coor, y_coor]
+     val: float = getVal(coordinates=coordination)
+
+     return (val, coordination)
+
+
+if __name__ == "__main__":
+     points: list[list[float]] = [
+          [0.0, 1.0],
+          [1.0, 1.0],
+          [0.0, 1.5]
+     ]
+     tolerance: float = 0.001           # loop coefficient
+     aplha: float = 1.0                 # reflection coefficient
+     gamma: float = 2.0                 # expansion coefficient
+     rho: float = 0.5                   # contraction coefficient
+     sigma: float = 0.5                 # shrink coefficient
+     max_iter: int = 40
+
+     for _ in range(3):
+          x = random.uniform(-5, 5)
+          y = random.uniform(-5, 5)
+          points.append([x, y])
+
+     
+
+     nelderMead(
+          points=points,
+          tolerance=tolerance,
+          alpha=aplha,
+          gamma=gamma,
+          rho=rho,
+          sigma=sigma,
+          max_iter=max_iter
+     )

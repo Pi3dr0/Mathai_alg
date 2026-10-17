@@ -8,5 +8,9 @@
 - [x] Newton's method
 
 ## Cviko 5
-- [] Gradientna metoda s normalizaciou vektorov
 - [] Powell's Method
+- [] Gradient Descnet
+- [] Steepest Descent
+
+## Cviko 6
+...

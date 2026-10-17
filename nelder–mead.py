@@ -142,14 +142,13 @@ def getVal(coordinates: list[float]) -> float:
 
 
 def function(x: float, y:float) -> float:
-     #return x**2 + 4*x*y + y**2 - y - x*y
-     return (x - 2)**2 + (y + 1)**2 +3
-     #return x**2 + y**2 + x*y**3
-
-     #return 3*(x-2)**2 + 0.5*(y+1)**2
-     #return 100 * (y - x**2)**2 + (1 - x)**2
-     #return math.exp(x) - 2 * x 
-     #return (x+2)**2 + (y-1)**2 + (x*y)/2
+     #return x**2 + y**2 # Sfera
+     #return x**2 + 25*y**2 # Pretiahnuta kvadraticka
+     #return (x + 2*y - 7)**2 + (2*x + y - 5)**2 # Booth
+     #return 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
+     #return (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
+     #return (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
+     return (1.5 - x + x*y)**2 + (2.25 - x + x*y)**2 + (2.625 -x + x*y**3)**2 # Beale
 
 
 def getReflection(
@@ -213,17 +212,18 @@ def getShrinking(
 
 
 if __name__ == "__main__":
-     points: list[list[float]] = [
+     """points: list[list[float]] = [
           [0.0, 1.0],
           [1.0, 1.0],
           [0.0, 1.5]
-     ]
+     ]"""
+     points: list[list[float]] = []
      tolerance: float = 0.001           # loop coefficient
      aplha: float = 1.0                 # reflection coefficient
      gamma: float = 2.0                 # expansion coefficient
      rho: float = 0.5                   # contraction coefficient
      sigma: float = 0.5                 # shrink coefficient
-     max_iter: int = 40
+     max_iter: int = 20000
 
      for _ in range(3):
           x = random.uniform(-5, 5)

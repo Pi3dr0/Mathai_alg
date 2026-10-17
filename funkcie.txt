@@ -1,7 +1,7 @@
-x**2 + 4*x*y + y**2 - y - x*y => NEFUNGUJE u nelder-mead
+x**2 + 4*x*y + y**2 - y - x*y => zle som odpisal priklad z cvika...
 (x - 2)**2 + (y + 1)**2
 x**2 + y**2 + x*y**3
 3*(x-2)**2 + 0.5*(y+1)**2
 100 * (y - x**2)**2 + (1 - x)**2
 math.exp(x) - 2 * x => e^x-2x
-(x+2)**2 + (y-1)**2 + (x*y)/2
+(x+2)**2 + (y-1)**2 + (x*y)/2s

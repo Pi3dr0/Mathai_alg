@@ -66,7 +66,15 @@ def newtonMethond2D(
     # Gradient
     x, y = sp.symbols("x, y")
     #f = (x+2)**2 + (y-1)**2 + (x*y)/2
-    f = x**2 + 4*x*y + y**2 - y - x*y
+    #f = x**2 + 4*x + y**2 - y - x*y
+
+    f = x**2 + y**2 # Sfera
+    #f = x**2 + 25*y**2 # Pretiahnuta kvadraticka
+    #f = (x + 2*y - 7)**2 + (2*x + y - 5)**2 # Booth
+    #f = 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
+    #f = (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
+    #f = (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
+    #f = (1.5 - x + x*y)**2 + (2.25 - x + x*y)**2 + (2.625 -x + x*y**3)**2 # Beale
 
     grad = sp.Matrix([
         sp.diff(f, x),
@@ -75,10 +83,21 @@ def newtonMethond2D(
 
     # Hessian
     hess = sp.hessian(f, (x, y))
+    print(hess)
 
     # Inverzna matica + SymPy -> NumPy
-    hess = np.array(hess.tolist(), dtype=float)
+    """hess = np.array(hess.tolist(), dtype=float)
     hess_inv = np.linalg.inv(hess)
+    x_k = np.array(
+        [x_start, y_start],
+        dtype=float
+    )"""
+
+    #! OVERIT CO JE TOTO...
+    grad_func = sp.lambdify((x,y), grad, "numpy")
+    hess_func = sp.lambdify((x,y), hess, "numpy")
+    f_func = sp.lambdify((x,y), f, "numpy")
+
     x_k = np.array(
         [x_start, y_start],
         dtype=float
@@ -93,10 +112,15 @@ def newtonMethond2D(
             dtype=float
         ).flatten()
 
+        # == pridaie:
+        Hk = np.array(hess_func(x_k[0], x_k[1]), dtype=float)
+
+        hess_inv = np.linalg.inv(Hk)
+
         delta = -hess_inv @ g
         x_new = x_k + delta
 
-        print(f"iteration: [{i}]")
+        print(f"iteration: [{i+1}]")
         print(f"x = {x_k}")
         print(f"gradient = {g}")
         print(f"delta = {delta}")
@@ -118,18 +142,23 @@ def newtonMethond2D(
     
 
 if __name__ == "__main__":
-    tolerance: float = 0.00001
-    max_iter: int = 100
+    tolerance: float = 0.001
+    max_iter: int = 20000
 
-
-    #stratring_point: list[float] = [0.0, 3.0]
-    stratring_point: list[float] = []
-
+    #stratring_point: list[float] = [3.0, 2.0] # Sfera
+    #stratring_point: list[float] = [3.0, 1.0] # Pretiahnuta kvadraticka
+    #stratring_point: list[float] = [0.0, 0.0] # Booth
+    #stratring_point: list[float] = [5.0, -3.0] # Matyas
+    #stratring_point: list[float] = [-1.2, 1] # Rosenbrock
+    stratring_point: list[float] = [0.0, 0.0] # Himmelblau
+    #stratring_point: list[float] = [1.0, 1.0] # Beale
+    
+    """stratring_point: list[float] = []
     for _ in range(2):
         x = random.uniform(-5, 5)
         y = random.uniform(-5, 5)
         stratring_point.append(x)
-        stratring_point.append(y)
+        stratring_point.append(y)"""
     
 
     """newtonMethond1D(

@@ -36,7 +36,7 @@ def goldenSearch(
 
 
 def g_tx(t: float, x_curr: float, y_curr: float) -> float:
-    return (x_curr + t)**2 + y_curr**2 # sfera
+    #return (x_curr + t)**2 + y_curr**2 # sfera
     #return (x_curr + t)**2 + 25*y_curr**2
     """return (
         ((x_curr + t) + 2*y_curr - 7)**2
@@ -54,15 +54,15 @@ def g_tx(t: float, x_curr: float, y_curr: float) -> float:
         ((x_curr + t)**2 + y_curr - 11)**2
         + ((x_curr + t) + y_curr**2 - 7)**2
     )""" # Himmelblau
-    """return (
+    return (
         (1.5 - (x_curr + t) + (x_curr + t)*y_curr)**2
         + (2.25 - (x_curr + t) + (x_curr + t)*y_curr)**2
         + (2.625 - (x_curr + t) + (x_curr + t)*y_curr**3)**2
-    )""" # Beale
+    ) # Beale
 
 
 def g_ty(t: float, x_curr: float, y_curr: float) -> float:
-    return x_curr**2 + (y_curr + t)**2 # sfera
+    #return x_curr**2 + (y_curr + t)**2 # sfera
     #return x_curr**2 + 25*(y_curr + t)**2
     """return (
         (x_curr + 2*(y_curr + t) - 7)**2
@@ -80,21 +80,21 @@ def g_ty(t: float, x_curr: float, y_curr: float) -> float:
         (x_curr**2 + (y_curr + t) - 11)**2
         + (x_curr + (y_curr + t)**2 - 7)**2
     )""" # Himmelblau
-    """return (
+    return (
         (1.5 - x_curr + x_curr*(y_curr + t))**2
         + (2.25 - x_curr + x_curr*(y_curr + t))**2
         + (2.625 - x_curr + x_curr*(y_curr + t)**3)**2
-    )""" # Beale
+    ) # Beale
 
 
 def function(x: float, y: float) -> float:
-    return x**2 + y**2 # sfera
+    #return x**2 + y**2 # sfera
     #return x**2 + 25*y**2 # Pretiahnuta kvadraticka
     #return (x + 2*y - 7)**2 + (2*x + y - 5)**2 # Booth
     #return 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
     #return (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
     #return (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
-    #return (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+    return (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
 
 
 def lineFunction(
@@ -211,21 +211,21 @@ if __name__ == "__main__":
     max_iter: int = 20_000
     tolerance: float = 1e-3 # 0.001
 
-    starting_point: tuple[float, float] = (3.0, 2.0) # sfera
+    #starting_point: tuple[float, float] = (3.0, 2.0) # sfera
     #starting_point: list[float] = [3.0, 1.0] # Pretiahnuta kvadraticka
     #starting_point: list[float] = [0.0, 0.0] # Booth
     #starting_point: list[float] = [5.0, -3.0] # Matyas
     #starting_point: list[float] = [-1.2, 1] # Rosenbrock
     #starting_point: list[float] = [0.0, 0.0] # Himmelblau
-    #starting_point: list[float] = [1.0, 1.0] # Beale
+    starting_point: list[float] = [1.0, 1.0] # Beale
 
-    end_point: tuple[float, float] = (0.0, 0.0) # sfera
+    #end_point: tuple[float, float] = (0.0, 0.0) # sfera
     #end_point: tuple[float, float] = (0.0, 0.0) # Pretiahnuta kvadraticka
     #end_point: tuple[float, float] = (1.0, 3.0) # Booth
     #end_point: tuple[float, float] = (0.0, 0.0) # Matyas
     #end_point: tuple[float, float] = (1.0, 1.0) # Rosenbrock
     #end_point: tuple[float, float] = (3.0, 2.0) # Himmelblau
-    #end_point: tuple[float, float] = (3.0, 0.5) # Beale
+    end_point: tuple[float, float] = (3.0, 0.5) # Beale
 
 
     powellsMethod(

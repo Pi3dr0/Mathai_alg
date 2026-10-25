@@ -16,14 +16,19 @@ def gradDesc2D(
     x, y = sp.symbols("x, y")
     function_val:float = 0.0
     x_curr, y_curr = x_start, y_start
+    # ------------------------------
+    # osetrenie, ci sa menia hodnoty
+    x_bfr: float | None = None
+    y_bfr: float | None = None
+    # ------------------------------
 
     #function = x**2 + y**2 # Sfera
     #function = x**2 + 25*y**2 # Pretiahnuta kvadraticka
     #function = (x + 2*y - 7)**2 + (2*x + y - 5)**2 # Booth
     #function = 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
     #function = (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
-    function = (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
-    #function = (1.5 - x + x*y)**2 + (2.25 - x + x*y)**2 + (2.625 -x + x*y**3)**2 # Beale
+    #function = (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
+    function = (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
 
 
      # Gradient of function
@@ -67,6 +72,15 @@ def gradDesc2D(
         if distance_to_min < tolerance: break
         # =============================
 
+        # =============================
+        # Ak sa nemenia hodnoty, nema zmysel pokracovat
+        if x_curr == x_bfr and y_curr == y_bfr:
+            print("Hodnoty sa uz nemenia")
+            break
+        # =============================
+
+        x_bfr, y_bfr = x_curr, y_curr
+
         x_curr -= alpha * gx
         y_curr -= alpha * gy
 
@@ -86,25 +100,32 @@ def gradDesc2D(
 
 
 if __name__ == "__main__":
-    lr: float = 0.02
     max_iter: int = 20_000
     tolerance: float = 0.001
+
+    #lr: float = 0.4 # sfera
+    #lr: float = 0.03 # Pretiahnity kvadr.
+    #lr: float = 0.1 # Booth
+    #lr: float = 1.7 # Matyas
+    #lr: float = 0.001 # Rosenbrock
+    #lr: float = 0.02 # Himmelblau
+    lr: float = 0.024 # Beale
 
     #starting_points: tuple[float, float] = (3.0, 2.0) # sfera
     #starting_points: tuple[float, float] = (3.0, 1.0) # Pretiahnuta kvadraticka
     #starting_points: tuple[float, float] = (0.0, 0.0) # Booth
     #starting_points: tuple[float, float] = (5.0, -3.0) # Matyas
     #starting_points: tuple[float, float] = (-1.2, 1.0) # Rosenbrock
-    starting_points: tuple[float, float] = (0.0, 0.0) # Himmelblau
-    #starting_points: tuple[float, float] = (1.0, 1.0) # Beale
+    #starting_points: tuple[float, float] = (0.0, 0.0) # Himmelblau
+    starting_points: tuple[float, float] = (1.0, 1.0) # Beale
 
     #end_poit: tuple[float, float] = (0.0, 0.0) # sfera
     #end_poit: tuple[float, float] = (0.0, 0.0) # Pretiahnuta kvadraticka
     #end_poit: tuple[float, float] = (1.0, 3.0) # Booth
     #end_poit: tuple[float, float] = (0.0, 0.0) # Matyas
     #end_poit: tuple[float, float] = (1.0, 1.0) # Rosenbrock
-    end_poit: tuple[float, float] = (3.0, 2.0) # Himmelblau
-    #end_poit: tuple[float, float] = (3.0, 0.5) # Beale
+    #end_poit: tuple[float, float] = (3.0, 2.0) # Himmelblau
+    end_poit: tuple[float, float] = (3.0, 0.5) # Beale
 
 
     gradDesc2D(

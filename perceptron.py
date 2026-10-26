@@ -1,84 +1,121 @@
-
 def perceptron(
-        train_data: list[list[int]],
-        target: list[int],
-        lr: float,
-        threshold: float) -> None:
+    train_data: list[list[int]],
+    target: list[int],
+    lr: float,
+    threshold: float,
+    max_iter: int,
+) -> None:
     number_of_x: int = len(train_data[0])
     number_of_rows: int = len(train_data)
-    neuron_weight: list[float] = [0.0 for _ in range(number_of_x)]
-    bias: float = 0
-    max_epochs: int = 100
 
-    # Iteracie while != 2
-    for epoch in range(max_epochs):
+    neuron_weight: list[float] = [
+        0.0 for _ in range(number_of_x)
+    ]
+    bias: float = 0.0
+
+    for epoch in range(max_iter):
         updated: bool = False
 
-        # For row
+        print("=====================")
+        print(f"Epoch: {epoch + 1}")
+
         for i in range(number_of_rows):
+            print("-----------------------")
+            print(f"input data: {train_data[i]}")
+
             z_val: float = get_NET(
                 train_data=train_data[i],
                 neuron_weight=neuron_weight,
                 bias=bias,
-                reps=number_of_x
+                reps=number_of_x,
             )
+            print(f"NET: {z_val} | target: {target[i]}")
 
-            #! Toto opravit
-            # +1 ak z > 0.2 threshold
-            # 0 ak -0.2 <= z <= 0.2
-            # -1 ak z < -0.2
-            prediction: int = 1 if z_val >= threshold else -1
+            if z_val > threshold:
+                prediction = 1
+            elif z_val < -threshold:
+                prediction = -1
+            else:
+                prediction = 0
+
+            print(f"aktivacna funkcia: {prediction}")
 
             if prediction != target[i]:
-                error: int = target[i] - prediction
-                neuron_weight = weight_diff(
+                weight_change: list[float] = weight_diff(
                     lr=lr,
-                    error=error,
+                    target=target[i],
                     train_data=train_data[i],
-                    old_weights=neuron_weight
                 )
-                bias += lr * error
+                bias_change: float = lr * target[i]
+
+                for j in range(number_of_x):
+                    neuron_weight[j] += weight_change[j]
+
+                bias += bias_change
                 updated = True
 
-            print(f"epoch {epoch}: weights={neuron_weight}, bias={bias}")
+                print(
+                    f"weight change: {weight_change} | "
+                    f"bias change: {bias_change}"
+                )
 
-            if not updated:
-                print("Perceptro Konvergoval")
-                break
+            print(
+                f"new weights: {neuron_weight} | "
+                f"bias: {bias}"
+            )
 
-    print(neuron_weight, bias)
+        if not updated:
+            print("=====================")
+            print(
+                f"Trenovanie skoncilo v epoche {epoch + 1}: "
+                "ziadna aktualizacia."
+            )
+            break
+    else:
+        print("=====================")
+        print(
+            f"Dosiahnuty maximalny pocet epoch ({max_iter}) "
+            "bez epochy bez aktualizacii."
+        )
+
+    print(f"Final weights: {neuron_weight} | bias: {bias}")
 
 
-def get_NET(train_data: list[int], neuron_weight: list, bias: float, reps: int) -> float:
-    z: int = 0
+def get_NET(
+    train_data: list[int],
+    neuron_weight: list[float],
+    bias: float,
+    reps: int,
+) -> float:
+    z: float = 0.0
+
     for i in range(reps):
         z += train_data[i] * neuron_weight[i]
+
     return z + bias
 
 
 def weight_diff(
-        lr: float,
-        error: int,
-        train_data: list[int],
-        old_weights: list[float],
+    lr: float,
+    target: int,
+    train_data: list[int],
 ) -> list[float]:
     return [
-        w + lr * error * x
-        for w, x in zip(old_weights, train_data)
+        lr * target * x
+        for x in train_data
     ]
-
-
 
 
 if __name__ == "__main__":
     lr: float = 1.0
     threshold: float = 0.2
+    max_iter: int = 10
 
     and_input: list[list[int]] = [
+        [1, 1],
         [1, 0],
         [0, 1],
-        [1, 0],
-        [0, 0]
+        [0, 0],
     ]
     and_target: list[int] = [1, -1, -1, -1]
 
@@ -86,6 +123,6 @@ if __name__ == "__main__":
         train_data=and_input,
         target=and_target,
         lr=lr,
-        threshold=threshold
+        threshold=threshold,
+        max_iter=max_iter,
     )
-

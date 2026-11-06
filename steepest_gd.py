@@ -2,11 +2,14 @@ import math
 import numpy as np
 import sympy as sp
 
+from scipy.optimize import golden
+
 
 def steepest_gd(
         x_start: tuple[float, float],
         tolerance: float,
-        max_iter: int = 100
+        max_iter: int = 100,
+        lam_finder: str = "deriv"
 ) -> None:
     x, y, lam = sp.symbols("x, y, lambda")
     x_curr, y_curr = x_start
@@ -21,7 +24,7 @@ def steepest_gd(
     lam_solve = sp.symbols("lambda")
 
     for i in range(max_iter):
-        print(f"Iteration: {i}")
+        print(f"Iteration: {i+1}")
 
         # step 1, 2 ========================
         Xk = sp.Matrix([x_curr, y_curr])
@@ -46,13 +49,25 @@ def steepest_gd(
         # ==================================
 
         # step 4 najdenie min f(d) =========
-        d1 = sp.diff(Xk1p1, lam)
-        lam_opt = sp.solve(sp.Eq(d1, 0), lam_solve)[0]
 
-        d2 = sp.diff(Xk1p1, lam, 2)
+        # Najdenie lambdy podla derivace = 0
+        if lam_finder == "deriv":
+            d1 = sp.diff(Xk1p1, lam)
+            lam_opt = sp.solve(sp.Eq(1, 0), lam_solve)[0]
+            d2 = sp.diff(Xk1p1, lam, 2)
+            print(f"d1: {d1}")
+            print(f"d2: {d2}")
+        # najdenie lambdy podla Golden Search
+        elif lam_finder == "golden":
+            phi = sp.lambdify(lam, Xk1p1, "numpy")
+            lam_opt = golden(phi, brack=(-10, 10))
+        else:
+            d1 = sp.diff(Xk1p1, lam)
+            lam_opt = sp.solve(sp.Eq(1, 0), lam_solve)[0]
+            d2 = sp.diff(Xk1p1, lam, 2)
+            print(f"d1: {d1}")
+            print(f"d2: {d2}")
 
-        print(f"d1: {d1}")
-        print(f"d2: {d2}")
         print(f"lambda opt: {lam_opt}")
         # ==================================
 
@@ -60,30 +75,43 @@ def steepest_gd(
         val = Xk1p1.subs({
             "lambda": lam_opt
         })
-        print(val)
+        print(f"z = {val}") # z
         
 
         # step 6 zastavovacie podmienky ===
-
-        #! Work in progress!!
-
-        # =================================
-
-        # I2: X1 -> X2
+        x_bfr, y_bfr = x_curr, y_curr
         x_curr, y_curr = Xk - lam_opt * grad_Xk
-        print(x_curr, y_curr)
+
+        f_Xk_val = function.subs({
+            x: x_bfr,
+            y: y_bfr
+        })
+        f_Xkp1_val = function.subs({
+            x: x_curr,
+            y: y_curr
+        })
+         # I2: X1 -> X2
+        print(f"X: {x_curr} Y: {y_curr}")
+
+        change_f_val = abs(f_Xkp1_val - f_Xk_val)
+        if change_f_val < tolerance:
+            print(f"{change_f_val} < {tolerance}")
+            break
+
         print("=================================")
     return
 
 
 
+
 if __name__ == "__main__":
-    max_iter: int = 10
-    tolerance: float = 1e-6
+    max_iter: int = 100
+    tolerance: float = 0.000001
     x_start: tuple[float, float] = (0.0, 0.0)
 
     steepest_gd(
         x_start=x_start,
         tolerance=tolerance,
-        max_iter=max_iter
+        max_iter=max_iter,
+        lam_finder="golden"
     )

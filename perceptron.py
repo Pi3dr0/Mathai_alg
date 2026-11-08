@@ -109,15 +109,34 @@ def weight_diff(
 if __name__ == "__main__":
     lr: float = 1.0
     threshold: float = 0.2
-    max_iter: int = 10
-
+    max_iter: int = 100
+    
     and_input: list[list[int]] = [
         [1, 1],
         [1, 0],
         [0, 1],
         [0, 0],
     ]
-    and_target: list[int] = [1, -1, -1, -1]
+    and_target: list[int] = [-1, -1, -1, 1]
+
+    test_input: list[list[int]] = [
+        [-1, -1],
+        [0, 0],
+        [-1, 1],
+        [2, -1],
+        [1, 1],
+
+        [2, 2],
+        [1, 4],
+        [3, 1],
+        [0, 5],
+        [5, 0]
+    ]
+
+    test_target: list[int] = [
+        -1, -1, -1, -1, -1,
+        1, 1, 1, 1, 1
+    ]
 
     perceptron(
         train_data=and_input,

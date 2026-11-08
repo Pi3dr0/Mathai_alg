@@ -1,4 +1,3 @@
-import math
 import numpy as np
 import sympy as sp
 
@@ -13,6 +12,7 @@ def steepest_gd(
 ) -> None:
     x, y, lam = sp.symbols("x, y, lambda")
     x_curr, y_curr = x_start
+    x_bfr, y_bfr = 9999.9, 9999.9
 
     function = 2*x**2 + x*y + 3*y**2 - 4*x + 2*y
 
@@ -21,10 +21,9 @@ def steepest_gd(
         sp.diff(function, y)
     ])
 
-    lam_solve = sp.symbols("lambda")
 
     for i in range(max_iter):
-        print(f"Iteration: {i+1}")
+        print(f"Iteration: {i + 1}")
 
         # step 1, 2 ========================
         Xk = sp.Matrix([x_curr, y_curr])
@@ -53,17 +52,17 @@ def steepest_gd(
         # Najdenie lambdy podla derivace = 0
         if lam_finder == "deriv":
             d1 = sp.diff(Xk1p1, lam)
-            lam_opt = sp.solve(sp.Eq(1, 0), lam_solve)[0]
+            lam_opt = sp.solve(sp.Eq(1, 0), lam)[0]
             d2 = sp.diff(Xk1p1, lam, 2)
             print(f"d1: {d1}")
             print(f"d2: {d2}")
         # najdenie lambdy podla Golden Search
         elif lam_finder == "golden":
             phi = sp.lambdify(lam, Xk1p1, "numpy")
-            lam_opt = golden(phi, brack=(-10, 10))
+            lam_opt = golden(phi, brack=(-5, 5))
         else:
             d1 = sp.diff(Xk1p1, lam)
-            lam_opt = sp.solve(sp.Eq(1, 0), lam_solve)[0]
+            lam_opt = sp.solve(sp.Eq(1, 0), lam)[0]
             d2 = sp.diff(Xk1p1, lam, 2)
             print(f"d1: {d1}")
             print(f"d2: {d2}")
@@ -72,6 +71,7 @@ def steepest_gd(
         # ==================================
 
         # step 5 dosadime lam do Xk1p1 =====
+
         val = Xk1p1.subs({
             "lambda": lam_opt
         })
@@ -79,28 +79,60 @@ def steepest_gd(
         
 
         # step 6 zastavovacie podmienky ===
-        x_bfr, y_bfr = x_curr, y_curr
-        x_curr, y_curr = Xk - lam_opt * grad_Xk
-
         f_Xk_val = function.subs({
             x: x_bfr,
             y: y_bfr
         })
+
+        x_bfr, y_bfr = x_curr, y_curr
+
         f_Xkp1_val = function.subs({
             x: x_curr,
             y: y_curr
         })
-         # I2: X1 -> X2
-        print(f"X: {x_curr} Y: {y_curr}")
 
+        # Norma gradientu
+        grad_Xk_num = np.array([
+            float(grad_Xk[0]),
+            float(grad_Xk[1])
+        ])
+        gradient_norm = np.linalg.norm(grad_Xk_num)
+
+        # Zmena pozicie
+        Xk1_num = Xk.subs(lam, lam_opt) - lam_opt * grad_Xk
+        x_new = float(Xk1_num[0])
+        y_new = float(Xk1_num[1])
+        
+
+         # I2: X1 -> X2
+        print(f"X: {x_new} Y: {y_new}")
+
+        # STOP: zmena hodnoty fynkcie
+        print(f_Xkp1_val, f_Xk_val)
         change_f_val = abs(f_Xkp1_val - f_Xk_val)
-        if change_f_val < tolerance:
-            print(f"{change_f_val} < {tolerance}")
+        if change_f_val < tolerance: # STOP: Zmena hodnoty funkcie
+            print(f"{change_f_val} < {tolerance} | Zmena hodnoty funkcie")
             break
 
+        # STOP: norma gradientu
+        if gradient_norm < tolerance: # STOP: Norma gradientu
+            print(f"{gradient_norm} < {tolerance} | Norma gradientu")
+            break
+
+        # STOP: zmena polohy
+        position_change = np.array([
+            x_new - x_curr,
+            y_new - y_curr
+        ])
+        position_norm = np.linalg.norm(position_change)
+        if position_norm < tolerance: # STOP: Zmena polohy
+            print(f"{position_norm} < {tolerance} | Zmena polohy")
+            break
+
+        #x_curr, y_curr = Xk - lam_opt * grad_Xk
+        x_curr, y_curr = x_new, y_new
         print("=================================")
     return
-
 
 
 

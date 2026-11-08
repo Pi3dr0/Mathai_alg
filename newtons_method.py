@@ -5,15 +5,16 @@ import random
 
 
 # ================================================
-# Pre 2D treba upravit premennu "f", pretoze inak
-# to nebude fungovat s derivaciami z SymPy !
+# !Sme zaseknuty na bode, kde je gradient nulovy a nevieme sa pohnut...
 # ================================================
 
 
 def function(x: float, y: float) -> float:
     #return math.exp(x) - 2 * x 
     #return (x+2)**2 + (y-1)**2 + (x*y)/2
-    return x**2 + 4*x*y + y**2 - y - x*y
+    #return x**2 + 4*x*y + y**2 - y - x*y
+    #return (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2
+    return 2*x**2 + x*y + 3*y**2 - 4*x + 2*y
 
 
 def newtonMethond1D(
@@ -82,7 +83,9 @@ def newtonMethond2D(
     #function = 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
     #function = (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
     #function = (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
-    function = (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+    #function = (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+
+    function = 2*x**2 + x*y + 3*y**2 - 4*x + 2*y
 
     grad = sp.Matrix([
         sp.diff(function, x),
@@ -93,10 +96,8 @@ def newtonMethond2D(
     hess = sp.hessian(function, (x, y))
     #print(hess)
 
-    #! OVERIT CO JE TOTO...
-    grad_func = sp.lambdify((x,y), grad, "numpy")
     hess_func = sp.lambdify((x,y), hess, "numpy")
-    f_func = sp.lambdify((x,y), function, "numpy")
+    f_func = sp.lambdify((x, y), function, "numpy")
 
     x_k = np.array(
         [x_start, y_start],
@@ -106,11 +107,11 @@ def newtonMethond2D(
     for i in range(max_iter):
         # =============================
         # podla zadania
-        distance_to_min = math.hypot(
+        """distance_to_min = math.hypot(
             x_k[0] - x_end,
             x_k[1] - y_end
         )
-        if distance_to_min < tolerance: break
+        if distance_to_min < tolerance: break"""
         # =============================
 
         g = np.array(
@@ -123,8 +124,8 @@ def newtonMethond2D(
 
         # =============================
         # podla alg.
-        """if np.linalg.norm(g) < tolerance:
-            break"""
+        if np.linalg.norm(g) <= tolerance:
+            break
         # =============================
 
         # == pridaie:
@@ -133,16 +134,25 @@ def newtonMethond2D(
         hess_inv = np.linalg.inv(Hk)
 
         delta = -hess_inv @ g
-        x_new = x_k + delta
+        x_new = x_k + delta # <--------------------
+
+        # Line search - aby sme nezostali zaseknuty
+        """step_size: float = 1.0
+        f_currnet = f_func(x_k[0], x_k[1])
+        while step_size > 1e-12:
+            candidate = x_k + step_size * delta
+            if f_func(candidate[0], candidate[1]) < f_currnet: break
+            step_size *= 0.5"""
 
         print(f"iteration: [{i+1}]")
         print(f"x = {x_k}")
         print(f"gradient = {g}")
         print(f"delta = {delta}")
-        print(f"x_new = {x_new}")
+        print(f"x_new = {x_new}") # <--------------------
         print("------------------------")
 
-        x_k = x_new
+        x_k = x_new # <--------------------
+        #x_k = x_k + step_size * delta
 
     val = function.subs({
         x: x_k[0],
@@ -150,10 +160,11 @@ def newtonMethond2D(
     })
     
     print(f"minimum: [{x_k[0]:.3f}, {x_k[1]:.3f}, {val:.3f}]")
+    return
     
 
 if __name__ == "__main__":
-    tolerance: float = 0.001
+    tolerance: float = 0.000001
     max_iter: int = 20_000
 
     #stratring_point: list[float] = [3.0, 2.0] # Sfera
@@ -161,16 +172,19 @@ if __name__ == "__main__":
     #stratring_point: list[float] = [0.0, 0.0] # Booth
     #stratring_point: list[float] = [5.0, -3.0] # Matyas
     #stratring_point: list[float] = [-1.2, 1] # Rosenbrock
-    #stratring_point: list[float] = [0.0, 0.0] # Himmelblau
-    stratring_point: list[float] = [1.0, 1.0] # Beale
+    #stratring_point: list[float] = [-1.2, 1.0] # Rosenbrock
+    #stratring_point: list[float] = [-4.0, 0.0] # Himmelblau
+    #stratring_point: list[float] = [1.0, 1.0] # Beale
+    stratring_point: list[float] = [0.0, 0.0]
 
     #end_poit: tuple[float, float] = (0.0, 0.0) # sfera
     #end_poit: tuple[float, float] = (0.0, 0.0) # Pretiahnuta kvadraticka
     #end_poit: tuple[float, float] = (1.0, 3.0) # Booth
     #end_poit: tuple[float, float] = (0.0, 0.0) # Matyas
     #end_poit: tuple[float, float] = (1.0, 1.0) # Rosenbrock
+    end_poit: tuple[float, float] = (1.0, 1.0) # Rosenbrock
     #end_poit: tuple[float, float] = (3.0, 2.0) # Himmelblau
-    end_poit: tuple[float, float] = (3.0, 0.5) # Beale
+    #end_poit: tuple[float, float] = (3.0, 0.5) # Beale
     
     """stratring_point: list[float] = []
     for _ in range(2):

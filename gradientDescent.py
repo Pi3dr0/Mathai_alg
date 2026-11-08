@@ -1,7 +1,6 @@
 import math
 import numpy as np
-import sympy as sp # derivacie atd...
-import random 
+import sympy as sp
 
 
 def gradDesc2D(
@@ -9,18 +8,11 @@ def gradDesc2D(
         tolerance: float,
         x_start: float,
         y_start: float,
-        x_end: float,
-        y_end: float,
         max_iter: int = 20_000
     ) -> None:
     x, y = sp.symbols("x, y")
     function_val:float = 0.0
     x_curr, y_curr = x_start, y_start
-    # ------------------------------
-    # osetrenie, ci sa menia hodnoty
-    x_bfr: float | None = None
-    y_bfr: float | None = None
-    # ------------------------------
 
     #function = x**2 + y**2 # Sfera
     #function = x**2 + 25*y**2 # Pretiahnuta kvadraticka
@@ -28,10 +20,11 @@ def gradDesc2D(
     #function = 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
     #function = (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
     #function = (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
-    function = (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+    #function = (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+    function = 2*x**2 + x*y + 3*y**2 - 4*x + 2*y
 
 
-     # Gradient of function
+    # Priprava funkcii na vypocty
     grad = sp.Matrix([
         sp.diff(function, x),
         sp.diff(function, y)
@@ -49,50 +42,59 @@ def gradDesc2D(
 
     # Loop
     for i in range(max_iter):
-        g = grad_f(x_curr, y_curr)
+        print(f"Iteration: [{i+1}]")
 
-        gx: float = g[0, 0]
-        gy: float = g[1, 0]
+        # ulozenie si hodnoty funkcie pre X0
+        old_function_val = funcction_f(x_curr, y_curr)
 
-        # =============================
-        # podla alg.
-        """abs_grad: float = math.sqrt(
-            gx**2 + gy**2
-        )
+        # vypocitanie hodnoty gradientu s X0
+        grad_val = grad_f(x_curr, y_curr)
 
-        if abs_grad < tolerance: break"""
-        # =============================
+        gx: float = grad_val[0, 0]
+        gy: float = grad_val[1, 0]
 
-        # =============================
-        # podla zadania
-        distance_to_min = math.hypot(
-            x_curr - x_end,
-            y_curr - y_end
-        )
-        if distance_to_min < tolerance: break
-        # =============================
-
-        # =============================
-        # Ak sa nemenia hodnoty, nema zmysel pokracovat
-        if x_curr == x_bfr and y_curr == y_bfr:
-            print("Hodnoty sa uz nemenia")
-            break
-        # =============================
-
+        # Aktualizacia bodov
         x_bfr, y_bfr = x_curr, y_curr
 
         x_curr -= alpha * gx
         y_curr -= alpha * gy
 
-        function_val: float = funcction_f(
+        function_val: float = funcction_f( # z value
             x_curr,
             y_curr
         )
-
-        print(f"Iteration: [{i+1}]")
+        
         print(f"new x: {x_curr:.5f}")
         print(f"new y: {y_curr:.5f}")
         print(f"func. val: {function_val:.5f}")
+        # Ukoncovacie podmienky ==========================
+
+        # STOP: zmena hodnoty funkcie
+        change_function_val = abs(function_val - old_function_val)
+        if change_function_val < tolerance:
+            print(f"{change_function_val} < {tolerance} | Zmena hodnoty funkcie")
+            break
+
+        # STOP: norma gradientu
+        # podla alg.
+        abs_grad: float = math.sqrt(
+            gx**2 + gy**2
+        )
+        if abs_grad < tolerance:
+            print(f"{abs_grad} < {tolerance} | Norma gradientu")
+            break
+
+        # STOP: zmena polohy
+        position_change = np. array([
+            x_curr - x_bfr,
+            y_curr - y_bfr
+        ])
+        position_norm = np.linalg.norm(position_change)
+        if position_norm < tolerance:
+            print(f"{position_change} < {tolerance} | Zmena pology")
+            break
+
+        
         print("------------------------")
 
     print(f"minimum: [{x_curr:.3f}, {y_curr:.3f}, {function_val:.3f}]")
@@ -101,39 +103,30 @@ def gradDesc2D(
 
 if __name__ == "__main__":
     max_iter: int = 20_000
-    tolerance: float = 0.001
+    tolerance: float = 0.000001
 
     #lr: float = 0.4 # sfera
-    #lr: float = 0.03 # Pretiahnity kvadr.
+    #lr: float = 0.045 # Pretiahnity kvadr.
     #lr: float = 0.1 # Booth
     #lr: float = 1.7 # Matyas
-    #lr: float = 0.001 # Rosenbrock
-    #lr: float = 0.02 # Himmelblau
-    lr: float = 0.024 # Beale
+    lr: float = 0.02 # Rosenbrock
+    #lr: float = 0.0149 # Himmelblau
+    #lr: float = 0.024 # Beale
 
     #starting_points: tuple[float, float] = (3.0, 2.0) # sfera
     #starting_points: tuple[float, float] = (3.0, 1.0) # Pretiahnuta kvadraticka
     #starting_points: tuple[float, float] = (0.0, 0.0) # Booth
     #starting_points: tuple[float, float] = (5.0, -3.0) # Matyas
     #starting_points: tuple[float, float] = (-1.2, 1.0) # Rosenbrock
-    #starting_points: tuple[float, float] = (0.0, 0.0) # Himmelblau
-    starting_points: tuple[float, float] = (1.0, 1.0) # Beale
+    #starting_points: tuple[float, float] = (-4.0, 0.0) # Himmelblau
+    #starting_points: tuple[float, float] = (1.0, 1.0) # Beale
 
-    #end_poit: tuple[float, float] = (0.0, 0.0) # sfera
-    #end_poit: tuple[float, float] = (0.0, 0.0) # Pretiahnuta kvadraticka
-    #end_poit: tuple[float, float] = (1.0, 3.0) # Booth
-    #end_poit: tuple[float, float] = (0.0, 0.0) # Matyas
-    #end_poit: tuple[float, float] = (1.0, 1.0) # Rosenbrock
-    #end_poit: tuple[float, float] = (3.0, 2.0) # Himmelblau
-    end_poit: tuple[float, float] = (3.0, 0.5) # Beale
-
+    starting_points: tuple[float, float] = (0.0, 0.0)
 
     gradDesc2D(
         alpha=lr,
         max_iter=max_iter,
         tolerance=tolerance,
         x_start=starting_points[0],
-        y_start=starting_points[1],
-        x_end=end_poit[0],
-        y_end=end_poit[1]
+        y_start=starting_points[1]
     )

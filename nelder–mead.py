@@ -29,13 +29,20 @@ def nelderMead(
                evaluated_points[2][1][0] - evaluated_points[0][1][0],
                evaluated_points[2][1][1] - evaluated_points[0][1][1]
           )
+          distance_good_best = math.hypot(
+               evaluated_points[1][1][0] - evaluated_points[0][1][0],
+               evaluated_points[1][1][1] - evaluated_points[0][1][1] 
+          )
+          distance = max(
+               distance_worst_best, distance_good_best
+          )
 
-          print(f"iteration: {i}")
+          print(f"iteration: {i + 1}")
           print(f"f val: {evaluated_points[2][0] - evaluated_points[0][0]}")
           print(f"Best point: {evaluated_points[0][1]}")
 
           # STOP: ak worst - best < tolerance
-          if distance_worst_best < tolerance: break
+          if distance < tolerance: break
           
           # Get center point between good and bad points
           center: tuple[float, list[float]] = getCenter(
@@ -142,8 +149,8 @@ def getVal(coordinates: list[float]) -> float:
 
 
 def function(x: float, y:float) -> float:
-     return x**2 + y**2 # Sfera
-     #return x**2 + 25*y**2 # Pretiahnuta kvadraticka
+     #return x**2 + y**2 # Sfera
+     return x**2 + 25*y**2 # Pretiahnuta kvadraticka
      #return (x + 2*y - 7)**2 + (2*x + y - 5)**2 # Booth
      #return 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
      #return (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock

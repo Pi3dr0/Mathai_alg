@@ -9,9 +9,7 @@ def nelderMead(
           gamma: float,
           rho: float,
           sigma: float,
-          max_iter: int,
-          x_end: float,
-          y_end: float
+          max_iter: int
           ) -> None:
      # Sort by value from function
      evaluated_points: list[tuple[float, list[float]]] = [
@@ -27,19 +25,17 @@ def nelderMead(
                key=lambda item: item[0]
           )
 
-          x_curr = evaluated_points[0][1][0]
-          y_curr = evaluated_points[0][1][1]
-
-          distance_to_min = math.hypot(
-               x_curr - x_end,
-               y_curr - y_end
+          distance_worst_best = math.hypot(
+               evaluated_points[2][1][0] - evaluated_points[0][1][0],
+               evaluated_points[2][1][1] - evaluated_points[0][1][1]
           )
 
           print(f"iteration: {i}")
-          print(evaluated_points[2][0] - evaluated_points[0][0])
-          print(evaluated_points[0][1])
+          print(f"f val: {evaluated_points[2][0] - evaluated_points[0][0]}")
+          print(f"Best point: {evaluated_points[0][1]}")
 
-          if distance_to_min < tolerance: break
+          # STOP: ak worst - best < tolerance
+          if distance_worst_best < tolerance: break
           
           # Get center point between good and bad points
           center: tuple[float, list[float]] = getCenter(
@@ -86,7 +82,7 @@ def nelderMead(
           worst_val: float = evaluated_points[2][0]
           
           # Check kontraction
-          if bad_val <= reflection[0]:
+          if reflection[0] >= bad_val:
                contraction: tuple[float, list[float]] = getContraction(
                     center_coor=center[1],
                     worst_coor=evaluated_points[2][1],
@@ -113,7 +109,6 @@ def nelderMead(
                     print("Shrinking")
                     print("---------------------")
                     continue
-          print("usel som!!!!!!!!")
           print("---------------------")
 
      x_pos: float = evaluated_points[0][1][0]
@@ -121,7 +116,7 @@ def nelderMead(
      val: float = getVal(
           coordinates=[x_pos, y_pos]
      )     
-     print(f"minimum: [{x_pos:.3f},{y_pos:.3f},{val:.3f}]")
+     print(f"minimum: [{x_pos:.5f},{y_pos:.5f},{val:.5f}]")
 
 
 def getCenter(
@@ -147,13 +142,14 @@ def getVal(coordinates: list[float]) -> float:
 
 
 def function(x: float, y:float) -> float:
-     #return x**2 + y**2 # Sfera
+     return x**2 + y**2 # Sfera
      #return x**2 + 25*y**2 # Pretiahnuta kvadraticka
      #return (x + 2*y - 7)**2 + (2*x + y - 5)**2 # Booth
      #return 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
      #return (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
      #return (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
-     return (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+     #return (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+     #return  2*x**2 + x*y + 3*y**2 - 4*x + 2*y
 
 
 def getReflection(
@@ -218,36 +214,34 @@ def getShrinking(
 
 if __name__ == "__main__":
      points: list[list[float]] = [
-          #[0.0, 1.0] # sfera
-          #[3.0, 1.0] # Pretiahnuta kvad.
-          #[0.0, 0.0] # Booth
-          #[5.0, -3.0] # Matyas
-          #[-1.2, 1.0] # Rosebrock
-          #[0.0, 0.0] # Himmelblau
-          [1.0, 1.0] # Beale
+          [3, 2], # sfera
+          #[3.0, 1.0], # Pretiahnuta kvad.
+          #[0.0, 0.0], # Booth
+          #[5.0, -3.0], # Matyas
+          #[-1.2, 1.0], # Rosebrock
+          #[-4.0, 0.0], # Himmelblau
+          #[1.0, 1.0], # Beale
+          [1, 0], # *2
+          [0, 1] # -3
+
      ]
-     tolerance: float = 0.001           # loop coefficient
+     tolerance: float = 0.00001          # loop coefficient
      aplha: float = 1.0                 # reflection coefficient
      gamma: float = 2.0                 # expansion coefficient
      rho: float = 0.5                   # contraction coefficient
      sigma: float = 0.5                 # shrink coefficient
      max_iter: int = 20_000
 
-     for i in range(2):
+     """for i in range(2):
           nd_point: float = points[i][0]
           rd_point: float = points[i][1]
 
           x = random.uniform(nd_point - 3, rd_point + 3)
           y = random.uniform(nd_point - 3, rd_point + 3)
-          points.append([x, y])
+          x = nd_point + 2
+          y = rd_point - 3
+          points.append([x, y])"""
 
-     #end_point: tuple[float, float] = (0.0, 0.0) # sfera
-     #end_point: tuple[float, float] = (0.0, 0.0) # pretiahnuta kvad.
-     #end_point: tuple[float, float] = (1.0, 3.0) # Booth
-     #end_point: tuple[float, float] = (0.0, 0.0) # Matyas
-     #end_point: tuple[float, float] = (1.0, 1.0) # Rosenbrock
-     #end_point: tuple[float, float] = (3.0, 2.0) # Himmelblau
-     end_point: tuple[float, float] = (3.0, 0.5) # Beale
 
      nelderMead(
           points=points,
@@ -256,7 +250,5 @@ if __name__ == "__main__":
           gamma=gamma,
           rho=rho,
           sigma=sigma,
-          max_iter=max_iter,
-          x_end=end_point[0],
-          y_end=end_point[1]
+          max_iter=max_iter
      )

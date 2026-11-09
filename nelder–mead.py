@@ -150,12 +150,12 @@ def getVal(coordinates: list[float]) -> float:
 
 def function(x: float, y:float) -> float:
      #return x**2 + y**2 # Sfera
-     return x**2 + 25*y**2 # Pretiahnuta kvadraticka
+     #return x**2 + 25*y**2 # Pretiahnuta kvadraticka
      #return (x + 2*y - 7)**2 + (2*x + y - 5)**2 # Booth
      #return 0.26*(x**2 + y**2) - 0.48*x*y # Matyas
      #return (1-x)**2 + 100*(y-x**2)**2 # Rosenbrock
      #return (x**2 + y - 11)**2 + (x + y**2 - 7)**2 # Himmelblau
-     #return (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
+     return (1.5 - x + x*y)**2 + (2.25 - x + x*y**2)**2 + (2.625 -x + x*y**3)**2 # Beale
      #return  2*x**2 + x*y + 3*y**2 - 4*x + 2*y
 
 
@@ -221,15 +221,15 @@ def getShrinking(
 
 if __name__ == "__main__":
      points: list[list[float]] = [
-          [3, 2], # sfera
+          #[3, 2], # sfera
           #[3.0, 1.0], # Pretiahnuta kvad.
           #[0.0, 0.0], # Booth
           #[5.0, -3.0], # Matyas
           #[-1.2, 1.0], # Rosebrock
-          #[-4.0, 0.0], # Himmelblau
-          #[1.0, 1.0], # Beale
-          [1, 0], # *2
-          [0, 1] # -3
+          #[0.0, 0.0], # Himmelblau
+          [1.0, 1.0], # Beale
+          [1, 0],
+          [0, 1]
 
      ]
      tolerance: float = 0.00001          # loop coefficient

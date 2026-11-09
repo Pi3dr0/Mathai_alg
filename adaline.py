@@ -11,7 +11,7 @@ def adaline(
     neuron_weight: list[float] = [
         0.0 for _ in range(number_of_x)
     ]
-    bias: float = 1.0
+    bias: float = 0.0
 
     for epoch in range(max_iter):
         print("=======================")
@@ -24,15 +24,19 @@ def adaline(
             print("-----------------------")
             print(f"train data: {x_input[i]}")
             print(f"target: {target}")
+            print(f"x: {x_input[i]} | w: {neuron_weight} | b: {bias}")
 
             y_in: float = get_NET(
                 train_data=x_input[i],
                 neuron_weight=neuron_weight,
                 bias=bias
             )
+            print(f"NET: {y_in}")
 
             error = target - y_in
+            print(f"e: {error}")
 
+            # pre zastavovaciu podmienku...
             for x in x_input[i]:
                 weight_change = abs(lr * error * x)
                 max_weight_change = max(
@@ -40,6 +44,7 @@ def adaline(
                     weight_change
                 )
 
+            print(f"weights: {neuron_weight} | b: {bias}")
             # weight updating
             neuron_weight = update_weights(
                 train_data=x_input[i],
@@ -48,17 +53,21 @@ def adaline(
                 error=error
             )
             bias += lr * error
+            print(f"new weights: {neuron_weight} | new b: {bias}")
 
             print(f"max weight change: {max_weight_change}")
-            print(f"new: ({neuron_weight} | {bias:.4f})")
+            #print(f"new: ({neuron_weight} | {bias:.4f})")
 
         if max_weight_change < tolerance:
             print("~~~~~~~~~~~~~~~~~~~~~~~")
+            print(f"{max_weight_change} | {tolerance}")
             print(neuron_weight, bias)
             print(
                 f"Output value: x1 {neuron_weight[0]:.3f}, x2 {neuron_weight[1]:.3f}, bias {bias:.3f}"
                 )
             break
+        else:
+            print(f"{max_weight_change} > {tolerance}")
 
 
 
@@ -83,43 +92,24 @@ def update_weights(
 
 
 if __name__ == "__main__":
-    lr: float = 0.001
-    tolerance: float = 0.05
-    max_iter: int = 500
+    lr: float = 0.2
+    tolerance: float = 5
+    max_iter: int = 100_000
 
     input_and: list[list[float]] = [
         [1.0, 1.0],
-        [1.0, 0.0],
-        [0.0, 1.0],
-        [0.0, 0.0]
+        [1.0, -1.0],
+        [-1.0, 1.0],
+        [-1.0, -1.0]
     ]
     output_and: list[float] = [
         1.0, -1.0, -1.0, -1.0
     ]
 
 
-    test_input: list[list[float]] = [
-            [-1, -1],
-            [0, 0],
-            [-1, 1],
-            [2, -1],
-            [1, 1],
-    
-            [2, 2],
-            [1, 4],
-            [3, 1],
-            [0, 5],
-            [5, 0]
-        ]
-
-    test_target: list[float] = [
-            -1, -1, -1, -1, -1,
-            1, 1, 1, 1, 1
-        ]
-
     adaline(
-        x_input=test_input,
-        y_input=test_target,
+        x_input=input_and,
+        y_input=output_and,
         lr=lr,
         tolerance=tolerance,
         max_iter=max_iter

@@ -161,5 +161,5 @@ if __name__ == "__main__":
         x_start=x_start,
         tolerance=tolerance,
         max_iter=max_iter,
-        lam_finder="golden"
+        lam_finder="deriv"
     )
